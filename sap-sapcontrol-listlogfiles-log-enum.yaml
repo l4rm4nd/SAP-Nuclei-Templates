@@ -43,7 +43,9 @@ http:
       - type: word
         part: body
         words:
+          - "<file>"
           - "<filename>"
+        condition: and
 
     extractors:
       # Collect all filenames internally (no direct CLI spam)
@@ -90,10 +92,6 @@ http:
 
       # One concise summary line in the output
       - type: dsl
-        name: summary
+        name: count
         dsl:
-          - "concat('total_logs=', len(log_files), \
-'; slog=', len(slog_files), \
-'; defaultTrace=', len(defaulttrace_files), \
-'; security=', len(security_logs), \
-'; applications=', len(applications_logs))"
+          - "concat('total_logs=', len(log_files))"
