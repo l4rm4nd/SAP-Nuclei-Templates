@@ -22,6 +22,11 @@ This collection contains already existing Nuclei templates for SAP as well as ne
 
 ## Usage
 
+> [!TIP]
+> Conduct an Nmap TCP full port scan first to craft your `targets.txt`. Only provide root URLs with no paths.
+>
+> I highly recommend converting Nmap's XML into an HTML report using [nmap-bootstrap-xsl](https://github.com/Haxxnet/nmap-bootstrap-xsl). Provides super visibility and many features ([demo](https://haxxnet.github.io/nmap-bootstrap-xsl/report.html)). Leave a star if you like it!
+
 ```bash
 # clone repo
 git clone https://github.com/l4rm4nd/SAP-Nuclei-Templates
