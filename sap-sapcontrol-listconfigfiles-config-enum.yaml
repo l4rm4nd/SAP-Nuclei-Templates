@@ -1,0 +1,62 @@
+id: sap-sapcontrol-listconfigfiles-config-enum
+
+info:
+  name: SAPControl - ListConfigFiles without authentication
+  author: LRVT <https://github.com/l4rm4nd>
+  severity: medium
+  tags: sap,sapcontrol,soap,config,info-disclosure
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Content-Type: text/xml; charset=UTF-8
+      SOAPAction: '""'
+      User-Agent: Mozilla/5.0
+
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header>
+          <sapsess:Session xmlns:sapsess="http://www.sap.com/webas/630/soap/features/session/">
+            <enableSession>true</enableSession>
+          </sapsess:Session>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+          <ns1:ListConfigFiles xmlns:ns1="urn:SAPControl"/>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "ListConfigFilesResponse"
+
+      - type: word
+        part: body
+        words:
+          - "<configfiles>"
+          - "<item>/usr/sap/"
+        condition: or
+
+    extractors:
+      - type: regex
+        part: body
+        name: config_files
+        group: 1
+        regex:
+          - "<configfiles>.*?</configfiles>"
+      - type: regex
+        part: body
+        name: config_files
+        group: 1
+        regex:
+          - "<item>([^<]+)</item>"

