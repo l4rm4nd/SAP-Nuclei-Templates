@@ -4,7 +4,32 @@ info:
   name: SAPControl - Unprotected Webmethods
   author: LRVT <https://github.com/l4rm4nd>
   severity: medium
+  description: |
+    Detects SAP systems where the SAP Start Service (sapstartsrv) SAPControl
+    SOAP interface exposes the GetInstanceProperties method without requiring
+    authentication.
+
+    GetInstanceProperties returns a structured list of instance attributes,
+    including the "Webmethods" and "Protected Webmethods" properties. These
+    contain the complete comma-separated list of all available SAPControl web
+    methods and the subset that is configured as protected via the
+    service/protectedwebmethods profile parameter.
+
+    If this endpoint is callable anonymously, a remote attacker can enumerate
+    exactly which high-impact management methods are reachable without
+    authentication, for example GetEnvironment, ABAPReadSyslog, ReadLogFile,
+    ListLogFiles, ListConfigFiles, ReadConfigFile or OSExecute. This
+    information reveals hardening gaps in sapstartsrv and significantly
+    supports reconnaissance and attack chaining, potentially leading to
+    unauthenticated information disclosure or even command execution when
+    dangerous methods such as OSExecute are left unprotected.
   tags: sap,sapcontrol,soap,exposure
+  reference:
+    - https://community.sap.com/t5/technology-blog-posts-by-members/securing-the-sap-instance-agent-sap-start-service/ba-p/13486679
+    - https://help.sap.com/docs/SUPPORT_CONTENT/si/3362958690.html
+    - https://help.sap.com/docs/SUPPORT_CONTENT/si/3362959700.html
+    - https://www.neteye-blog.com/2017/03/sap-monitoring-experiences-with-sapcontrol-and-check_sap_health/
+    - https://redrays.io/blog/extended-security-settings-for-sapstartsrv-sap-security-note-1439348/
 
 http:
   - method: POST

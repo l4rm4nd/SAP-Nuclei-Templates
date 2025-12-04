@@ -4,7 +4,29 @@ info:
   name: SAPControl - ListLogFiles without authentication
   author: LRVT <https://github.com/l4rm4nd>
   severity: medium
+  description: |
+    Detects SAP systems where the SAP Start Service (sapstartsrv) SAPControl
+    SOAP interface exposes the ListLogFiles web method without authentication.
+
+    ListLogFiles returns a structured list of all instance log and trace files
+    in the work directory (for example dev_disp, dev_ms, defaultTrace,
+    applications_* and security_* logs) including their filenames, size and
+    modification time. If the SOAP endpoint is reachable anonymously, a
+    remote attacker can fully enumerate available log and trace files and map
+    the file system layout of the SAP instance.
+
+    This significantly supports reconnaissance and follow-up attacks, as the
+    discovered filenames can later be accessed via other unprotected log
+    reading methods such as ReadLogFile or ReadDeveloperTrace, or targeted
+    through separate vulnerabilities on OS or application level. The output
+    also reveals SIDs, instance numbers, hostnames and other internal
+    details encoded in standard SAP log naming conventions.
   tags: sap,sapcontrol,soap,log,info-disclosure
+  reference:
+    - https://learning.sap.com/courses/technical-implementation-and-operation-i-of-sap-s-4hana-and-sap-business-suite/log-and-trace-information-for-system-start-and-stop
+    - https://sapbasisinfo.com/blog/2017/01/20/sapcontrol-command-funtions-for-sap-hana/
+    - https://itsiti.com/csmon/
+    - https://www.networkintelligence.ai/blogs/sap-security-assessment-methodology-part-2-credential-less-attack-vectors/
 
 http:
   - method: POST

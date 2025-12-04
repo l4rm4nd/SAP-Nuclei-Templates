@@ -1,10 +1,34 @@
 id: sap-sapcontrol-getenvironment-env-disclosure
 
 info:
-  name: SAPControl - GetEnvironment without authentication
+  name: SAPControl - Unauthenticated GetEnvironment Information Disclosure
   author: LRVT <https://github.com/l4rm4nd>
   severity: medium
-  tags: sap,sapcontrol,soap,env,info-disclosure
+  description: |
+    Detects SAP systems where the SAP Start Service (sapstartsrv) SAPControl
+    SOAP web service exposes the GetEnvironment web method without
+    authentication.
+
+    GetEnvironment returns the full list of environment variables of the SAP
+    instance process. If the SOAP endpoint is reachable without credentials,
+    a remote attacker can obtain OS level and SAP specific variables, such as
+    user and host information (HOME, USER, LOGNAME, HOSTNAME), SAP kernel and
+    profile paths (SAPSYSTEMNAME, SAPEXE, DIR_LIBRARY, LD_LIBRARY_PATH),
+    secure store and crypto configuration (RSEC_SSFS_DATAPATH,
+    RSEC_SSFS_KEYPATH, SNC_LIB, SECUDIR), as well as database related
+    settings (DB_SID, dbms_type, ORACLE_SID, TNS_ADMIN, SAPDATA_HOME, etc).
+
+    These values reveal internal hostnames, filesystem layout, SIDs and
+    instance structure and may expose credentials, keys or other sensitive
+    configuration details. This significantly supports reconnaissance and can
+    assist in privilege escalation and lateral movement against the SAP
+    application and its underlying database or operating system when chained
+    with other vulnerabilities.
+  tags: sap,sapcontrol,soap,env,exposure,info-disclosure,recon
+  reference:
+    - https://help.sap.com/docs/SUPPORT_CONTENT/si/3362959700.html
+    - https://itsiti.com/csmon/
+    - https://docs.avantra.com/api/latest/js/sap-control.html
 
 http:
   - method: POST

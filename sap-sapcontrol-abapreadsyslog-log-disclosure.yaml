@@ -4,7 +4,25 @@ info:
   name: SAPControl - ABAPReadSyslog without authentication
   author: LRVT <https://github.com/l4rm4nd>
   severity: medium
+  description: |
+    Detects SAP systems where the SAPControl SOAP web service exposes the
+    ABAPReadSyslog operation without authentication. ABAPReadSyslog returns
+    the ABAP system log (equivalent to transaction SM21) via SAPControl /
+    sapstartsrv and includes fields such as client, username, transaction
+    code, message number, free-text message and severity.
+    
+    If the SOAP endpoint is reachable without credentials, a remote attacker
+    can read recent syslog entries and gain detailed information about the
+    SAP landscape like technical and dialog users, client numbers, transaction
+    codes, internal hostnames, paths, system events and potentially sensitive
+    business or troubleshooting data that administrators or developers logged
+    in clear text. This significantly supports reconnaissance and can help
+    in chaining further attacks against the SAP NetWeaver / ABAP platform.
   tags: sap,sapcontrol,soap,abap,log,info-disclosure
+  reference:
+    - https://my-handshake.blogspot.com/2011/03/sapcontrol-webmethods-list.html
+    - https://gist.github.com/c6da760f57e062397e52400936ca5797
+    - https://exchange.icinga.com/kai_ks/check_sap_hostctrl
 
 http:
   - method: POST
