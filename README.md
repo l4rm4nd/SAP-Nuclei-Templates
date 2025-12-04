@@ -1,6 +1,8 @@
 # SAP-Nuclei-Templates
 Nuclei Templates for SAP Pentesting
 
+Likely to be added to the official Nuclei templates. Status [here](https://github.com/projectdiscovery/nuclei-templates/pull/14224).
+
 ## Usage
 
 ```bash
