@@ -18,6 +18,7 @@ This collection contains already existing Nuclei templates for SAP as well as ne
   - sap-sapcontrol-osexecute-unauth-rce.yaml
   - sap-sapcontrol-readconfigfile-config-disclosure.yaml
   - sap-sapcontrol-readlogfile-log_disclosure.yaml
+  - sap-visual-composer-metadatauploader-detect.yaml
 
 ## Usage
 
