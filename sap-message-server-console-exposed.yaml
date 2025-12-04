@@ -3,7 +3,7 @@ id: sap-message-server-console-exposed
 info:
   name: SAP Message Server Console Exposed
   author: LRVT, l4rm4nd
-  severity: low
+  severity: info
   description: |
     Detects the SAP Message Server HTTP console exposed on /msgserver.
 
