@@ -1,6 +1,5 @@
 id: sap-sapcontrol-getversioninfo
 
-
 info:
   name: SAPControl - GetVersionInfo Kernel Version Detection (unauthenticated)
   author: LRVT, l4rm4nd
