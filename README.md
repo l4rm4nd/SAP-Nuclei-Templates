@@ -3,7 +3,7 @@ Nuclei Templates for SAP Pentesting
 
 ## Collection
 
-This collection contains already existing Nuclei templates for SAP as well as newly developed ones by me. The new ones are heavily based on already existing Metasploit SAP SOAP modules but ported as Nuclei templates for ease of use. These new templates await approval by Nuclei to be added to the official Nuclei Template collection. Status [here](https://github.com/projectdiscovery/nuclei-templates/pull/14224).
+This collection contains already existing Nuclei templates for SAP as well as newly developed ones by me. The new ones are heavily inspired by already existing Metasploit SAP SOAP modules but ported to the Nuclei templates engine for ease of use. These new templates await approval by Nuclei to be added to the official Nuclei Template collection. Status [here](https://github.com/projectdiscovery/nuclei-templates/pull/14224).
 
 - Existing templates collected from official Nuclei Templates:
   - http/technologies/sap
