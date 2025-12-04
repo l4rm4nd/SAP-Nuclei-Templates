@@ -31,6 +31,12 @@ This collection contains already existing Nuclei templates for SAP as well as ne
 # clone repo
 git clone https://github.com/l4rm4nd/SAP-Nuclei-Templates
 
-# run nuclei
+# run all sap nuclei templates
 nuclei -l targets.txt -t ./SAP-Nuclei-Templates
+
+# detect panels and basic info only
+nuclei -l targets.txt -t ./SAP-Nuclei-Templates -s info
+
+# run my custom sap templates only
+nuclei -l targets.txt -t ./SAP-Nuclei-Templates -a LRVT
 ```
