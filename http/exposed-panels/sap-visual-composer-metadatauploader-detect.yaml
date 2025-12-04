@@ -1,0 +1,72 @@
+id: sap-visual-composer-metadatauploader-detect
+
+info:
+  name: SAP NetWeaver Visual Composer Metadata Uploader - Exposure Detection (CVE-2025-31324)
+  author: LRVT, l4rm4nd
+  severity: critical
+  description: |
+    Heuristic detection of SAP NetWeaver Visual Composer systems potentially affected by
+    CVE-2025-31324, based on the exposure logic published by Onapsis.
+
+    The check:
+      - Sends an HTTP request to the Visual Composer metadatauploader endpoint:
+          /developmentserver/metadatauploader
+      - Confirms the Server header indicates "SAP NetWeaver" and "AS Java"
+      - Confirms the endpoint responds with HTTP 200 OK
+      - Confirms there is no Set-Cookie header present on the response
+
+    According to the Onapsis scanner logic, a 200 OK response from this endpoint without a
+    Set-Cookie header on a SAP NetWeaver AS Java system is a strong indicator that the
+    system may be vulnerable to CVE-2025-31324.
+
+    This template is a lightweight exposure detector only and does not attempt exploitation
+    or file upload. Use it alongside the official "CVE-2025-31324.yaml" exploit template for
+    full validation.
+  reference:
+    - https://github.com/Onapsis/Onapsis_CVE-2025-31324_Scanner_Tools
+    - https://me.sap.com/notes/3594142
+    - https://www.bleepingcomputer.com/news/security/sap-fixes-suspected-netweaver-zero-day-exploited-in-attacks/
+    - https://www.theregister.com/2025/04/25/sap_netweaver_patch/
+  classification:
+    cve-id: CVE-2025-31324
+    cwe-id: CWE-434
+  tags: cve,cve2025,sap,netweaver,visual-composer,exposure,rce,deserialization
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/developmentserver/metadatauploader"
+
+    headers:
+      User-Agent: Mozilla/5.0
+
+    matchers-condition: and
+    matchers:
+      # 1) Endpoint responds successfully
+      - type: status
+        status:
+          - 200
+
+      # 2) SAP NetWeaver AS Java banner present
+      - type: word
+        part: header
+        words:
+          - "SAP NetWeaver"
+          - "AS Java"
+        condition: and
+
+      # 3) No Set-Cookie header (mirrors Onapsis heuristic)
+      - type: word
+        part: header
+        negative: true
+        words:
+          - "Set-Cookie"
+
+    extractors:
+      # Extract full Server header banner for version/SID fingerprinting
+      - type: regex
+        part: header
+        name: sap_server_banner
+        group: 1
+        regex:
+          - "(?i)server:\\s*([^\\r\\n]+)"
